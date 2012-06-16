@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="Ajgl\Solveet" default="build" basedir=".">
+    <property name="src" value="src"/>
+    <property name="tests" value="tests"/>
+    <property name="checkTestsDir" value="false" />
+
+    <fileset dir="${project.basedir}" id="src">
+        <include name="${src}/**/*.php" />
+    </fileset>
+
+    <fileset dir="${project.basedir}" id="tests">
+        <include name="tests/**/*.php" />
+    </fileset>
+
+    <target name="phplint" depends="prepare-cachedir"
+            description="Checks the php files syntax">
+        <echo msg="Checking php files syntax" />
+        <phplint haltonfailure="true" level="info" deprecatedAsError="true" cachefile="${build.cachedir}/src.lint">
+            <fileset refid="src"/>
+        </phplint>
+    </target>
+
+    <target name="phplint-tests" depends="prepare-cachedir"
+            description="Checks the php files syntax">
+        <echo msg="Checking php files syntax" />
+        <phplint haltonfailure="true" level="info" deprecatedAsError="true" cachefile="${build.cachedir}/tests.lint">
+            <fileset refid="tests"/>
+        </phplint>
+    </target>
+
+
+    <target name="clean"
+            description="Clean up and create artifact directories">
+        <echo msg="Cleaning directory ${project.basedir}/build" />
+        <delete dir="${project.basedir}/build/api"/>
+        <delete dir="${project.basedir}/build/code-browser"/>
+        <delete dir="${project.basedir}/build/coverage"/>
+        <delete dir="${project.basedir}/build/logs"/>
+        <delete dir="${project.basedir}/build/pdepend"/>
+        <delete dir="${project.basedir}/build/phpmd"/>
+        <delete dir="${project.basedir}/build/tests"/>
+    </target>
+
+    <target name="prepare" depends="clean, composer">
+        <mkdir dir="${project.basedir}/build/api"/>
+        <mkdir dir="${project.basedir}/build/code-browser"/>
+        <mkdir dir="${project.basedir}/build/coverage"/>
+        <mkdir dir="${project.basedir}/build/logs"/>
+        <mkdir dir="${project.basedir}/build/pdepend"/>
+        <mkdir dir="${project.basedir}/build/phpmd"/>
+        <mkdir dir="${project.basedir}/build/tests"/>
+        <phingcall target="prepare-cachedir" />
+    </target>
+
+    <target name="prepare-cachedir">
+        <echo msg="Preparing cache directory ${project.basedir}/build/cache" />
+        <if>
+            <not>
+                <available file="${project.basedir}/build/cache" type="dir"/>
+            </not>
+            <then>
+                <mkdir dir="${project.basedir}/build/cache"/>
+            </then>
+        </if>
+        <property name="build.cachedir" value="${project.basedir}/build/cache" />
+    </target>
+
+    <target name="composer" depends="prepare-cachedir"
+            description="Install php dependencies with composer">
+        <echo msg="Installing php dependencies with composer"/>
+
+        <property name="build.composer.phar" value="${build.cachedir}/composer.phar" />
+
+        <if>
+            <not>
+                <available file="${build.composer.phar}"/>
+            </not>
+            <then>
+                <exec dir="${build.cachedir}" command="curl -s http://getcomposer.org/installer | php" checkreturn="true"/>
+            </then>
+        </if>
+
+        <exec dir="${project.basedir}" command="php ${build.composer.phar} install" checkreturn="true"/>
+
+    </target>
+
+    <target name="phpunit" depends="phplint, phplint-tests, prepare"
+            description="Run unit tests using PHPUnit and generates junit.xml and clover.xml">
+        <echo msg="Running unit tests using PHPUnit command" />
+        <exec dir="${project.basedir}/tests" command="phpunit" returnProperty="phpuniterror" passthru="true"/>
+        <phpunitreport infile="${project.basedir}/build/logs/junit.xml"
+                       format="frames"
+                       todir="${project.basedir}/build/tests"
+                       usesorttable="true"/>
+        <if>
+            <equals arg1="${phpuniterror}" arg2="0" />
+            <then>
+                <echo msg="Tests execution success!" />
+            </then>
+            <else>
+                <fail if="phpuniterror" message="Tests execution failed! Code: ${phpuniterror}" />
+            </else>
+        </if>
+
+    </target>
+
+    <target name="pdepend" depends="phplint, prepare"
+            description="Generate jdepend.xml and software metrics charts using PHP_Depend">
+        <echo msg="Generating software metrics with PHP_Depend" />
+        <phpdepend>
+            <fileset refid="src"/>
+            <logger type="jdepend-xml" outfile="${project.basedir}/build/logs/jdepend.xml"/>
+            <logger type="jdepend-chart" outfile="${project.basedir}/build/pdepend/dependencies.svg"/>
+            <logger type="overview-pyramid" outfile="${project.basedir}/build/pdepend/overview-pyramid.svg"/>
+            <analyzer type="coderank-mode" value="method"/>
+        </phpdepend>
+    </target>
+
+    <target name="phpmd" depends="phplint, prepare"
+            description="Generate pmd.xml using PHPMD">
+        <echo msg="Generating mess detector report with PHPMPD" />
+        <phpmd>
+            <fileset refid="src"/>
+            <formatter type="xml" outfile="${project.basedir}/build/logs/pmd.xml"/>
+            <formatter type="html" outfile="${project.basedir}/build/phpmd/index.html"/>
+        </phpmd>
+    </target>
+
+    <target name="phpcpd" depends="phplint, prepare"
+            description="Generate pmd-cpd.xml using PHPCPD">
+        <echo msg="Generating copy-paster report with PHPCPD" />
+        <phpcpd>
+            <fileset refid="src"/>
+            <formatter type="pmd" outfile="${project.basedir}/build/logs/pmd-cpd.xml"/>
+        </phpcpd>
+    </target>
+
+    <target name="phploc" depends="phplint, prepare"
+            description="Generate phploc.csv">
+        <echo msg="Generating lines of code report with PHPLOC" />
+        <exec command="phploc --log-csv ${project.basedir}/build/logs/phploc.csv --exclude build --exclude docs --exclude public --exclude tests --exclude vendor ${project.basedir}" />
+    </target>
+
+    <target name="php-cs-prepare" depends="prepare-cachedir">
+        <property name="build.php-cs-fixer.phar" value="${build.cachedir}/php-cs-fixer.phar" />
+
+        <if>
+            <not>
+                <available file="${build.php-cs-fixer.phar}"/>
+            </not>
+            <then>
+                <exec dir="${build.cachedir}" command="curl http://cs.sensiolabs.org/get/php-cs-fixer.phar | tee ${build.php-cs-fixer.phar}" checkreturn="true"/>
+            </then>
+        </if>
+
+    </target>
+
+    <target name="php-cs-fix" depends="phplint, prepare"
+            description="Interactive checking coding style">
+        <echo msg="Fixing coding standards" />
+        <exec command="${build.php-cs-fixer.phar} fix ${src}" passthru="true" />
+    </target>
+
+    <target name="php-cs-fixtests" depends="phplint-tests"
+            description="Interactive checking coding style of tests">
+        <echo msg="Fixing coding standards for tests" />
+        <exec command="${build.php-cs-fixer.phar} fix ${tests}" passthru="true" />
+    </target>
+
+    <target name="docblox" depends="clean"
+            description="Generate API documentation using DocBlox">
+        <echo msg="Generating API documentation using DocBlox" />
+        <docblox title="API Documentation"
+                 destdir="${project.basedir}/build/api">
+            <fileset refid="src"/>
+        </docblox>
+    </target>
+
+    <target name="phpcb" depends="clean"
+            description="Aggregate tool output with PHP_CodeBrowser">
+        <echo msg="Aggregate tool output with PHP_CodeBrowser" />
+        <exec command="phpcb --log ${project.basedir}/build/logs
+                 --source ${src}
+                 --output ${project.basedir}/build/code-browser" />
+    </target>
+
+    <target name="build" depends="php-cs-fix, php-cs-fixtests, phpunit"/>
+
+</project>

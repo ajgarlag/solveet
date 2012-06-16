@@ -1,0 +1,10 @@
+{
+    "name": "ajgarlag/solveetArbolDeNavidad",
+    "description": "Solveet: Arbol de Navidad",
+    "license": "MIT",
+    "autoload": {
+        "psr-0": {
+            "Ajgl": "src/"
+        }
+    }
+}
