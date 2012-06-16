@@ -105,11 +105,16 @@ class Tree
     /**
      * The branch has trailing spaces to allow you to insert the tree into a custom text
      *
-     * Something like
+     * Something like:
      *   $tree = new Tree(3);
-     *   $line1 = $tree->getBranch(1) . "My custom line 1"
-     *   $line2 = $tree->getBranch(2) . "My custom line 1"
-     *   $line3 = $tree->getBranch(3) . "My custom line 1"
+     *   $line1 = $tree->getBranch(1) . " My custom line 1"
+     *   $line2 = $tree->getBranch(2) . " My custom line 2"
+     *   $line3 = $tree->getBranch(3) . " My custom line 3"
+     *
+     * that will look:
+     *     *   My custom line 1
+     *    ***  My custom line 2
+     *   ***** My custom line 3
      *
      * @param  integer $position
      * @return string
