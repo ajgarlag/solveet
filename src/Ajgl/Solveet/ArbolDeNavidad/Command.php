@@ -20,68 +20,47 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- *
+*
  * @category   Ajgl
  * @package    Ajgl\Solveet
- * @subpackage ArbolDeNavidad\Test
+ * @subpackage ArbolDeNavidad
  * @author     Antonio J. García Lagar <aj@garcialagar.es>
  * @license    http://www.opensource.org/licenses/mit-license.php MIT
  */
 
 namespace Ajgl\Solveet\ArbolDeNavidad;
 
+use Symfony\Component\Console\Command\Command as SymfonyCommand;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
+
 /**
- * Tree class test
+ * Tree command
  *
  * @category   Ajgl
  * @package    Ajgl\Solveet
- * @subpackage ArbolDeNavidad\Test
+ * @subpackage ArbolDeNavidad
  * @author     Antonio J. García Lagar <aj@garcialagar.es>
  * @license    http://www.opensource.org/licenses/mit-license.php MIT
+ * @see        http://www.solveet.com/exercises/Arbol-de-Navidad/23
  */
-class TreeTest
-    extends \PHPUnit_Framework_TestCase
+class Command
+    extends SymfonyCommand
 {
-
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Cannot plant the given seed '-42'. It must be non negative
-     */
-    public function testFailsWithNegativeSeed()
+protected function configure()
     {
-        new Tree(-42);
+        $this->setName('arbolDeNavidad')
+            ->setDescription('Dibuja un arbol de asteriscos')
+            ->addArgument('semilla', InputArgument::REQUIRED, 'La altura será igual al tamaño de la semilla');
     }
 
-    public function testFailsWithSeedZero()
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $tree = new Tree(0);
-        $this->assertEmpty($tree->__toString());
-    }
+        $seed = $input->getArgument('semilla');
+        $tree = new Tree($seed);
 
-    public function testTree1()
-    {
-        $tree = new Tree(1);
-        $this->assertEquals(
-                file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . '_files' . DIRECTORY_SEPARATOR . 'tree1.txt'),
-                $tree->__toString()
-        );
-    }
-
-    public function testTree2()
-    {
-        $tree = new Tree(2);
-        $this->assertEquals(
-                file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . '_files' . DIRECTORY_SEPARATOR . 'tree2.txt'),
-                $tree->__toString()
-        );
-    }
-
-    public function testTree3()
-    {
-        $tree = new Tree(3);
-        $this->assertEquals(
-                file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . '_files' . DIRECTORY_SEPARATOR . 'tree3.txt'),
-                $tree->__toString()
-        );
+        $output->writeln($tree->__toString());
     }
 }

@@ -7,8 +7,11 @@ use Behat\Behat\Context\ClosuredContextInterface,
     Behat\Behat\Exception\PendingException;
 use Behat\Gherkin\Node\PyStringNode,
     Behat\Gherkin\Node\TableNode;
+use Symfony\Component\Console\Application,
+    Symfony\Component\Console\Command\Command as SymfonyCommand,
+    Symfony\Component\Console\Tester\CommandTester;
 use Assert\Assertion;
-use Ajgl\Solveet\ArbolDeNavidad;
+use Ajgl\Solveet;
 
 
 /**
@@ -18,14 +21,19 @@ class FeatureContext extends BehatContext
 {
 
     /**
-     * @var ArbolDeNavidad\Tree
+     * @var Application
      */
-    protected $tree;
+    protected $application;
 
     /**
-     * @var string
+     * @var SymfonyCommand
      */
-    protected $string;
+    protected $command;
+
+    /**
+     * @var CommandTester
+     */
+    protected $commandTester;
 
     /**
      * Initializes context.
@@ -35,30 +43,39 @@ class FeatureContext extends BehatContext
      */
     public function __construct(array $parameters)
     {
-        // Initialize your context here
+        $this->application = new Application();
     }
 
     /**
-     * @Given /^que planto un arbol de altura "([^"]*)"$/
+     * @Given /^tengo que plantar un arbol$/
      */
-    public function quePlantoUnArbolDeAltura($arg1)
+    public function tengoQuePlantarUnArbol()
     {
-        $this->tree = new ArbolDeNavidad\Tree($arg1);
+        $this->application->add(new Solveet\ArbolDeNavidad\Command());
+        $this->command = $this->application->find('arbolDeNavidad');
+        $this->commandTester = new CommandTester($this->command);
     }
 
     /**
-     * @Given /^convierto el arbol en una cadena$/
+     * @Given /^planto una semilla "([^"]*)"$/
      */
-    public function conviertoElArbolEnUnaCadena()
+    public function plantoUnaSemilla($arg1)
     {
-        $this->string = $this->tree->__toString();
+        $this->commandTester->execute(
+            array(
+                'command' => $this->command->getName(),
+                'semilla' => $arg1
+            )
+        );
     }
 
     /**
-     * @Given /^obtengo:$/
+     * @Given /^crece el arbol:$/
      */
-    public function obtengo(PyStringNode $string)
+    public function creceElArbol(PyStringNode $string)
     {
-        Assertion::true($string->__toString() === $this->string);
+        Assertion::true($string->__toString() === $this->commandTester->getDisplay());
     }
+
+
 }

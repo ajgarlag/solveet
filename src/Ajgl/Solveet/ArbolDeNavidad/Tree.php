@@ -66,9 +66,9 @@ class Tree
     {
         $seed = (integer) $seed;
 
-        if ($seed < 1) {
+        if ($seed < 0) {
             throw new \InvalidArgumentException(
-                "Cannot plant the given seed '$seed'. It must be greater than '0'"
+                "Cannot plant the given seed '$seed'. It must be non negative"
             );
         }
 
@@ -103,37 +103,12 @@ class Tree
     }
 
     /**
-     * The branch has trailing spaces to allow you to insert the tree into a custom text
-     *
-     * Something like:
-     *   $tree = new Tree(3);
-     *   $line1 = $tree->getBranch(1) . " My custom line 1"
-     *   $line2 = $tree->getBranch(2) . " My custom line 2"
-     *   $line3 = $tree->getBranch(3) . " My custom line 3"
-     *
-     * that will look:
-     *     *   My custom line 1
-     *    ***  My custom line 2
-     *   ***** My custom line 3
-     *
      * @param  integer $position
      * @return string
      */
-    public function getBranch($position)
+    protected function getBranch($position)
     {
         $position = (integer) $position;
-
-        if ($position < 1) {
-            throw new \InvalidArgumentException(
-                "The branch cannot grow at position '$position'. It must be greater than '0'"
-            );
-        }
-
-        if ($position > $this->seed) {
-            throw new \InvalidArgumentException(
-                "The branch cannot grow under the ground at position '$position'. It must be lesser than '{$this->$seed}'"
-            );
-        }
 
         $leafs = str_pad('', 2 * $position - 1, '*');
         $branch = str_pad($leafs, 2 * $this->seed - 1, ' ', STR_PAD_BOTH);
@@ -150,6 +125,6 @@ class Tree
     {
         $this->water();
 
-        return implode("\n", $this->flowerpott) . "\n";
+        return implode("\n", $this->flowerpott);
     }
 }
