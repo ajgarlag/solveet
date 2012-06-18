@@ -9,7 +9,8 @@ use Symfony\Component\Console\Application;
 $application = new Application();
 $application->addCommands(
     array(
-        new Solveet\ArbolDeNavidad\Command()
+        new Solveet\ArbolDeNavidad\Command(),
+        new Solveet\LaMinaDeDiamantes\Command()
     )
 );
 $application->run();

@@ -77,5 +77,34 @@ class FeatureContext extends BehatContext
         Assertion::true($string->__toString() === $this->commandTester->getDisplay());
     }
 
+    /**
+     * @Given /^que tengo una mina$/
+     */
+    public function queTengoUnaMina()
+    {
+        $this->application->add(new Solveet\LaMinaDeDiamantes\Command());
+        $this->command = $this->application->find('laMinaDeDiamantes');
+        $this->commandTester = new CommandTester($this->command);
+    }
 
+    /**
+     * @Given /^encuentro una veta "([^"]*)"$/
+     */
+    public function encuentroUnaVeta($arg1)
+    {
+        $this->commandTester->execute(
+            array(
+                'command' => $this->command->getName(),
+                'veta' => $arg1
+            )
+        );
+    }
+
+    /**
+     * @Given /^obtengo "([^"]*)" diamantes$/
+     */
+    public function obtengoDiamantes($arg1)
+    {
+        Assertion::true($arg1 . "\n" === $this->commandTester->getDisplay());
+    }
 }
