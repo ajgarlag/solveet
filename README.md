@@ -4,8 +4,13 @@ Solución en PHP al desafío [Árbol de Navidad](http://www.solveet.com/exercise
 publicado en [Solveet](http://www.solveet.com).
 
 Me lo he planteado como un ejercicio para aprender y poner en práctica diversas técnologías como
+
  * [phing](http://www.phing.info/)
  * [PHPUnit](http://www.phpunit.de/)
  * [composer](http://getcomposer.org/)
  * [travis-ci](http://travis-ci.org/)
+ * [Behat](http://behat.org/)
+ * [Assert](https://github.com/beberlei/assert.git)
  * etc...
+
+en definitiva... un poco matar moscas a cañonazos ;-)
