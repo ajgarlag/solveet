@@ -1,9 +1,8 @@
-# Árbol de Navidad [![Build Status](https://secure.travis-ci.org/ajgarlag/solveetArbolDeNavidad.png)](http://travis-ci.org/ajgarlag/solveetArbolDeNavidad)
+# Soluciones Solveet en PHP [![Build Status](https://secure.travis-ci.org/ajgarlag/solveet.png)](http://travis-ci.org/ajgarlag/solveet)
 
-Solución en PHP al desafío [Árbol de Navidad](http://www.solveet.com/exercises/Arbol-de-Navidad/23)
-publicado en [Solveet](http://www.solveet.com).
+Solución en PHP a distintos desafíos propuestos en [solveet.com](http://www.solveet.com)
 
-Me lo he planteado como un ejercicio para aprender y poner en práctica diversas técnologías como
+Me lo he planteado como un ejercicio para aprender y poner en práctica diversas tecnologías como
 
  * [phing](http://www.phing.info/)
  * [PHPUnit](http://www.phpunit.de/)
@@ -13,4 +12,7 @@ Me lo he planteado como un ejercicio para aprender y poner en práctica diversas
  * [Assert](https://github.com/beberlei/assert.git)
  * etc...
 
-en definitiva... un poco matar moscas a cañonazos ;-)
+Cada desafío tiene su propia solución dentro de src/Ajgl/Solveet/NombreDelDesafio y sus tests en
+tests/src/Ajgl/Solveet/NombreDelDesafio.
+
+Además, existe un comando en bin/solveet que permite ejecutar los desafíos.
